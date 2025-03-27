@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entraînement Notes Musicales</title>
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+        }
+        #question {
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+        #options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        .option {
+            background-color: #333;
+            padding: 15px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .option:hover {
+            background-color: #555;
+        }
+        #feedback {
+            position: fixed;
+            top: 20px;
+            font-size: 1.5em;
+            color: #00cc00;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+    </style>
+</head>
+<body>
+    <div id="feedback"></div>
+    <div id="question"></div>
+    <div id="options"></div>
+
+    <script>
+        const notes = [
+            { fr: "Do", en: "C" },
+            { fr: "Ré", en: "D" },
+            { fr: "Mi", en: "E" },
+            { fr: "Fa", en: "F" },
+            { fr: "Sol", en: "G" },
+            { fr: "La", en: "A" },
+            { fr: "Si", en: "B" }
+        ];
+
+        const questionDiv = document.getElementById("question");
+        const optionsDiv = document.getElementById("options");
+        const feedbackDiv = document.getElementById("feedback");
+
+        function getRandomNote() {
+            return notes[Math.floor(Math.random() * notes.length)];
+        }
+
+        function getRandomOptions(correctNote, isFrenchToEnglish) {
+            let options = isFrenchToEnglish ? [correctNote.en] : [correctNote.fr];
+            const source = isFrenchToEnglish ? notes.map(n => n.en) : notes.map(n => n.fr);
+            while (options.length < 4) {
+                const randomOption = source[Math.floor(Math.random() * source.length)];
+                if (!options.includes(randomOption)) {
+                    options.push(randomOption);
+                }
+            }
+            return options.sort(() => Math.random() - 0.5); // Mélange aléatoire
+        }
+
+        function showFeedback(isCorrect) {
+            feedbackDiv.textContent = isCorrect ? "Correct !" : "Incorrect, essaie encore.";
+            feedbackDiv.style.color = isCorrect ? "#00cc00" : "#ff3333";
+            feedbackDiv.style.opacity = 1;
+            setTimeout(() => {
+                feedbackDiv.style.opacity = 0;
+                if (isCorrect) loadNewQuestion();
+            }, 1000);
+        }
+
+        function loadNewQuestion() {
+            optionsDiv.innerHTML = "";
+            const currentNote = getRandomNote();
+            const isFrenchToEnglish = Math.random() < 0.5; // 50% de chance pour chaque sens
+            questionDiv.textContent = isFrenchToEnglish ? currentNote.fr : currentNote.en;
+            const options = getRandomOptions(currentNote, isFrenchToEnglish);
+
+            options.forEach(option => {
+                const btn = document.createElement("div");
+                btn.textContent = option;
+                btn.classList.add("option");
+                btn.addEventListener("click", () => {
+                    const correctAnswer = isFrenchToEnglish ? currentNote.en : currentNote.fr;
+                    showFeedback(option === correctAnswer);
+                });
+                optionsDiv.appendChild(btn);
+            });
+        }
+
+        // Lancer le premier quiz
+        loadNewQuestion();
+    </script>
+</body>
+</html>
